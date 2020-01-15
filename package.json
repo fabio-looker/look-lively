@@ -1,0 +1,22 @@
+{
+  "name": "look-lively",
+  "version": "0.0.0",
+  "description": "Render a data table, fast & interactive, from Looker",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server --open --mode development",
+    "build": "webpack"
+  },
+  "author": "Fabio Beltramini",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@looker/extension-sdk": "^0.3.4",
+    "hyperapp": "^2.0.3"
+  },
+  "devDependencies": {
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.2.3",
+    "webpack-dev-server": "^3.2.1"
+  }
+}
