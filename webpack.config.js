@@ -11,9 +11,9 @@ module.exports = {
 		inline: false, // ^ See above
 		},
 	output: {
-		//path: path.resolve(__dirname, 'dist'),
-		filename: 'main.js',
+		path: path.resolve(__dirname, 'dist'),
+		filename: 'bundle.js',
 		chunkFilename: '[name].chunk.js',
-		publicPath: '/',
+		publicPath: 'https://localhost:8080/dist/',
 		}
 	}

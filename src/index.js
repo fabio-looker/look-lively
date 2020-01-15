@@ -11,15 +11,10 @@ console.log("post-import")
 	debugger
 	
 	//
-	//const asyncData = looker.downloadQuery()
-	const asyncMain = import(/* webpackChunkName: "main" */ './main.js')
-	//const first = await Promise.race([asyncData,asyncMain])
-	// if(typeof first === Stream){
-	// 
-	// 	}
-	// else {
-	// 
-	// 	}
+	const asyncData = Promise.resolve() //host.invokeCoreSdkByPath(...) // for download query API
+	const asyncMain = import(/* webpackChunkName: "main" */ /* webpackMode: "lazy" */ './main.js')
+		.then(module=>module.default)
 	const [data,main] = await Promise.all([asyncData, asyncMain])
+	main(data)
 	console.log("Async done")
 	}()
