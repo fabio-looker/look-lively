@@ -15,5 +15,13 @@ module.exports = {
 		filename: 'bundle.js',
 		chunkFilename: '[name].chunk.js',
 		publicPath: 'https://localhost:8080/dist/',
+	},
+	module: {
+		rules: [
+			{
+				test: /\.css$/i,
+				use: ['css-loader'],
+				},
+			],
 		}
 	}
