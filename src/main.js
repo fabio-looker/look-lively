@@ -2,7 +2,9 @@
 //console.log("main.js loaded")
 import * as hyperapp from "hyperapp"
 import css from './main.css'
-
+import formatRouter from './lib/format-router.js'
+const ID = x=>x
+const unique = (x,i,arr) => arr.indexOf(x)===i
 
 export default function main(asyncQuery, asyncData, {host,looker,document,global}){
 	applyCss(document)
@@ -28,7 +30,10 @@ function App({hyperapp,host,looker,document}){
 			dynamic_fields:[]
 		},
 		data:[],
-		readyFormatters:{},
+		labelSequence:[],
+		formats:{},
+		formatters:{},
+		formatterSequence:[],
 		scroll:0
 		}
 
@@ -42,6 +47,8 @@ function App({hyperapp,host,looker,document}){
 		...defaultActions,
 		fields: defaultActions,
 		query: defaultActions,
+		formats: defaultActions,
+		formatters: defaultActions,
 		resolveQueryDefinition: asyncQuery => async (s,app) => {
 			app.set({queryState:"Fetching query definition..."})
 			const response = await asyncQuery
@@ -71,22 +78,24 @@ function App({hyperapp,host,looker,document}){
 			if(!explore.fields){
 				return app.set({queryState:`Failed to find field definitions found for ${lookml_model_name}/${explore_name}`})
 				}
-			const fields = Object.fromEntries(
-				[]
-					.concat(explore.fields.dimensions||[])
-					.concat(explore.fields.measures||[])
-					.map(f=>[f.name,{
-						...f,
-						label: f.label_from_parameter && `${f} (label_from_parameter not yet implemented)`
-							|| f.label_short //Maybe flip this & label?
-							|| f.label
-							|| f.replace(/_/g," ").replace(/[^|_][a-z]/g,s=>s.toUpperCase())
-						}])
-				)
-			// Note #1: ^ Getting labels from here, but maybe we should just use the query csv Response
-			// for labels, as the labeling seems to already be applies, and just use this defimition for
-			// formatting
-			app.fields.set(fields)
+			const fields = []
+				.concat(explore.fields.dimensions||[])
+				.concat(explore.fields.measures||[])
+				.map(f=>({
+					...f,
+					label: s.fields[f.name] && s.fields[f.name].label
+						|| f.label_from_parameter && `${f} (pending label_from_parameter)`
+						|| f.label_short //Maybe flip this & label?
+						|| f.label
+						|| f.replace(/_/g," ").replace(/[^|_][a-z]/g,s=>s.toUpperCase()),
+						// ^ The preferred source for this is in the CSV header row where Looker has already labeled the column
+					format: f.value_format_name
+						|| f.value_format
+					}))
+			const fieldsById = Object.fromEntries(fields.map(f=>[f.name,f]))
+			app.fields.set(fieldsById)
+			const formats = fields.map(f=>f.format).filter(unique)
+			formats.forEach(format => app.resolveFormat(format))
 			// TODO?: Persist field defs to localStorage?
 			},
 		resolveQueryData: asyncData => async (s,app) => {
@@ -99,17 +108,48 @@ function App({hyperapp,host,looker,document}){
 				app.set({dataState:"Data error in API response"})
 				return
 				}
-			const [fields,...data] = 
+			const [labelSequence,...data] = 
 				response.value
 				.split("\n")
 				.map(row=>row.split(','))
 			//app.query.set({fields})
 			//^ It seems these already have labeling applied... We'll just rely on
 			// the label from the query definition for now. See note #1
-			app.set({data})
+			app.set({labelSequence})
+			app.mergeLabels()
+			app.set({data,queryState:''})
+			},
+		resolveFormat: format => async (s,app) => {
+			let formatterId = s.formats[format]
+			if(!formatterId){
+				formatterId = formatRouter(format)
+				if(!formatterId){return}
+				app.formats.set({[format]: formatterId})
+				}
+			let formatter = s.formatters[formatterId]
+			if(!formatter){
+				//TODO: lookup docs for hinting to webpack which glob to prepare for dynamic import
+				formatter = await import(`./lib/formatters/${formatterId}.js`).then(module=>module.default)
+				if(!formatter){return}
+				app.formatters.set({[formatterId]:formatter})
+				}
+			if(s.query.fields){
+				const formatterSequence = s.query.fields
+					.map(field => 
+						(  s.fields[field]
+						|| s.query.dynamic_fields[fields]
+						|| O
+						).value_format || "")
+					.map(format => s.formats[format] || '')
+					.map(formatterId => s.formatters[formatterId])	
+				app.set({formatterSequence})
+				}
+			},
+		mergeLabels: () => async (s,app) => {
+			//
+			
 			}
 		}
-		
 		return hyperapp.app(initState, actions, view, document.body)
 	}
 
@@ -117,33 +157,32 @@ function View(hyperapp){
 	const {h} = hyperapp
 	const [main,h1,div,table,tr,th,td,thead,tbody]
 		= "main,h1,div,table,tr,th,td,thead,tbody".split(",").map(tag=>(attr,els)=>h(tag,attr,els))
-	return (s, app) => main({}, [
-		h1({},"Turbo Query"),
-		div({},s.queryState),
-		table({}, [
-			thead({},[
-				tr({},s.query.fields.map(f=>
-					th({},s.fields[f] && s.fields.label
-						//|| q.dynamic_fields && q.dynamic_fields[f] && q.dynamic_fields[f].label
-						|| f
-						)
-					))
-				]),
-			tbody({},
-				s.data.slice(s.scroll,s.scroll+100).map(dr=>
-					tr({},dr.map((dd,col)=>
-						td({},dd+" "
-							+	(( s.fields[s.query.fields[col]]
-								|| s.query.dynamic_fields[s.query.fields[col]]
-								|| {}
-								).value_format||"")
+	const O = {}
+	//const A = []
+	return (s, app) => {
+		return main(O, [
+			h1(O,"Turbo Query"),
+			div(O,s.queryState),
+			table(O, [
+				thead(O,[
+					tr(O,s.query.fields.map(f=>
+						th(O, (s.fields[f]||O).label
+							//|| q.dynamic_fields && q.dynamic_fields[f] && q.dynamic_fields[f].label
+							|| f
 							)
 						))
+					]),
+				tbody(O,
+					s.data.slice(s.scroll,s.scroll+100).map(dr=>
+						tr(O,dr.map((dd,col)=>
+							td(O,(s.formatterSequence[col]||ID)(dd))
+							))
+						)
+					.concat([
+						tr({class:'virtual-bottom-padding'})
+						])
 					)
-				.concat([
-					tr({class:'virtual-bottom-padding'})
-					])
-				)
+				])
 			])
-		])
+		}
 	}
