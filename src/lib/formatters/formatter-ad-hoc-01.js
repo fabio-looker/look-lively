@@ -1,5 +1,6 @@
-export default function formatterPercentN(field){
-	const n = parseInt((field.value_format_name.match(/[0-9]+/)||[])[0])||0
+export default function formatterAdHoc01(field){
+	if(field.value_format!=='#,##0.0%'){throw "Ad Hoc formatter is only for #,##0.0%"}
+	const n=1
 	return value => {
 		const numString = (value*100).toString() 
 		const parts = numString.split('.')

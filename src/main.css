@@ -1,13 +1,37 @@
 body {
-	background-color: #FFE;
+	background-color: #fff;
+	margin: 0 40px;
+}
+.table-wrap {
+	height:640px;
+	overflow-y: auto;
 }
 table {
-  border-collapse: collapse;
+	border-collapse: collapse;
+}
+thead tr th {
+	position: sticky;
+	top: 0;
+	background-color: #fff;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+tbody {
 }
 tr {
   border-bottom: 1px solid #ccc;
 }
 th, td {
-  text-align: left;
-  padding: 4px;
+	text-align: left;
+	padding: 4px;
+}
+.status {
+	margin: 1em;
+	max-width: 600px;
+	padding: 6px 20px;
+	border: 1px solid #CCC;
+	background-color: #EEE;
+	color:#666;
+	border-radius: 6px;
+	box-shadow: 4px 4px 4px rgba(0,0,0,0.5)
 }
