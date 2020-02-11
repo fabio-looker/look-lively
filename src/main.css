@@ -8,6 +8,7 @@ body {
 }
 table {
 	border-collapse: collapse;
+	table-layout: fixed;
 }
 thead tr th {
 	position: sticky;
