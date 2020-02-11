@@ -14,10 +14,10 @@ import { decodeUrlParams } from './lib/decode-url-params.js'
 	
 	const qs = decodeUrlParams(host.lookerHostData.route)
 	console.log("qs: ",qs)
-	const {query_id} = qs
+	const {query_id,limit} = qs
 	const asyncData = query_id
 		//? looker.run_query({query_id,result_format:'csv'}) //Not as fast
-		? host.invokeCoreSdkByPath("GET", `/queries/${query_id}/download/csv`) // Not yet working, don't know the expected path/signature
+		? host.invokeCoreSdkByPath("GET", `/queries/${query_id}/download/csv${limit?"?limit="+limit:""}`) // Not yet working, don't know the expected path/signature
 		//? host.invokeCoreSdkByName('download_query',{query_id,query_format:"csv"}) //Don't know the right way to invoke this
 		: Promise.resolve([])
 	const asyncQuery = query_id
