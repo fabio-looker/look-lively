@@ -7,8 +7,8 @@ module.exports = {
 		},
 	devServer: {
 		https: true,
-		hot: false, //The injected script doesn't really handle null-origin sandboxing very well
-		inline: false, // ^ See above
+		//hot: false, //Enable pre-7.2: The injected script doesn't really handle null-origin sandboxing very well
+		//inline: false, // ^ See above
 		},
 	output: {
 		path: path.resolve(__dirname, 'dist'),
