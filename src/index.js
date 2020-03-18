@@ -1,16 +1,17 @@
+/* Copyright (c) 2020 Looker Data Sciences, Inc. */
+
+//Dynamically set the base path for async-loaded code
+import './lib/webpack-public-path.js'
+
 //Synchronously load only code required to begin fetching query results
 import { LookerExtensionSDK, connectExtensionHost } from "@looker/extension-sdk"
 import { decodeUrlParams } from './lib/decode-url-params.js'
 
 !async function(){
-	let host = await connectExtensionHost()
-	let looker = LookerExtensionSDK.createClient(host)
-	//console.log("SDK Usable?")
+	let host = await new Promise(res=>{let host = connectExtensionHost({initializedCallback:()=>res(host)})})
+	console.log("host.lookerHostData: ",host.lookerHostData)
 	
-	console.log("host.lookerHostData: ",host.lookerHostData)
-	await new Promise(res=>setTimeout(res,500))
-	console.log("Waiting 500ms...")
-	console.log("host.lookerHostData: ",host.lookerHostData)
+	let looker = LookerExtensionSDK.createClient(host)
 	
 	const qs = decodeUrlParams(host.lookerHostData.route)
 	console.log("qs: ",qs)
