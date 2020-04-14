@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack-dev-server --open --mode development --no-inline --no-hot --port 8080",
-    "build": "webpack"
+    "stage": "webpack-dev-server --open --mode production --no-inline --no-hot --port 8080",
+    "build": "webpack --mode=production"
   },
   "author": "Fabio Beltramini",
   "license": "UNLICENSED",

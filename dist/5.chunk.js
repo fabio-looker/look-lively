@@ -1,0 +1,1 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[5],{39:function(n,t,e){"use strict";function o(n){const t=parseInt((n.value_format_name.match(/[0-9]+/)||[])[0])||0;return n=>{const e=(100*n).toString().split(".");return(e[0]||"0")+"."+((e[1]||"")+"0000000000").slice(0,t)+"%"}}e.r(t),e.d(t,"default",(function(){return o}))}}]);

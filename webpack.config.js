@@ -1,12 +1,13 @@
 const path = require('path')
 
 module.exports = {
-	mode: 'development',
+	//mode: 'development',
 	entry: {
 		index: './src/index.js',
 		},
 	devServer: {
 		https: true,
+		headers: { "Access-Control-Allow-Origin": "*" }
 		//hot: false, //Enable pre-7.2: The injected script doesn't really handle null-origin sandboxing very well
 		//inline: false, // ^ See above
 		},

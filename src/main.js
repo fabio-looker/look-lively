@@ -128,7 +128,6 @@ function App({hyperapp,host,looker,document}){
 		resolveFormatter: formatterId => async (s,app) => {
 			let formatter = s.formatters[formatterId]
 			if(!formatter){
-				//TODO: lookup docs for hinting to webpack which glob to prepare for dynamic import
 				formatter = await import(`./lib/formatters/${formatterId}.js`).then(module=>module.default)
 				if(!formatter){return}
 				app.formatters.set({[formatterId]:formatter})

@@ -1,0 +1,1 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[2],{36:function(t,n,o){"use strict";function r(t){if("#,##0.0%"!==t.value_format)throw"Ad Hoc formatter is only for #,##0.0%";return t=>{const n=(100*t).toString().split(".");return(n[0]||"0")+"."+((n[1]||"")+"0000000000").slice(0,1)+"%"}}o.r(n),o.d(n,"default",(function(){return r}))}}]);
